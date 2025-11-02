@@ -14,13 +14,13 @@ https://qiita.com/api/v2/docs#get-apiv2tagstag_iditems
 
 ```bash
 export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-export QIITA_ACCESS_TOKEN="your-qiita-token"  # オプション（レート制限緩和）
+export QIITA_ACCESS_TOKEN="your-qiita-token"
 ```
 
 3. 依存関係をインストール
 
 ```bash
-go mod download
+go mod tidy
 ```
 
 4. 実行
@@ -38,18 +38,14 @@ go run main.go -mode=rss -rss="https://qiita.com/tags/Go/feed" -limit=10
 
 ## 機能
 
-### 1. メッセージモード (`-mode=message`)
-
-- シンプルなメッセージを Slack に送信
-
-### 2. 集計モード (`-mode=aggregate`)
+### 1. 集計モード (`-mode=aggregate`)
 
 - 指定した Qiita タグの記事を取得
 - 記事のいいね数を集計
 - トップ 10 記事を Slack に投稿
 - 総記事数と総いいね数を表示
 
-### 3. RSS モード (`-mode=rss`)
+### 2. RSS モード (`-mode=rss`)
 
 - RSS フィードから最新記事を取得
 - 指定件数の記事を Slack に投稿
