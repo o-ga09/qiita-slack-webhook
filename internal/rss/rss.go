@@ -32,7 +32,7 @@ type RSSItem struct {
 }
 
 // fetchRSSFeed はRSSフィードから最新記事を取得
-func FetchRSSFeed(feedURL string) (*notifier.SlackMessage, error) {
+func FetchRSSFeed(feedURL string) (*RSSFeed, error) {
 	resp, err := http.Get(feedURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch RSS feed: %w", err)
@@ -48,24 +48,41 @@ func FetchRSSFeed(feedURL string) (*notifier.SlackMessage, error) {
 		return nil, fmt.Errorf("failed to parse RSS feed: %w", err)
 	}
 
-	return &notifier.SlackMessage{}, nil
+	return &feed, nil
 }
 
 // getLatestRSSArticles は指定した件数の最新記事を取得
 func GetLatestRSSArticles(cfg config.Config) (*notifier.SlackMessage, error) {
-	items, err := FetchRSSFeed(cfg.RSSFeedURL)
+	rss, err := FetchRSSFeed(cfg.RSSFeedURL)
 	if err != nil {
 		return nil, err
 	}
 
 	// 日付でソート（新しい順）
-	sort.Slice(items, func(i, j int) bool {
-		ti, _ := time.Parse(time.RFC1123Z, items[i].PubDate)
-		tj, _ := time.Parse(time.RFC1123Z, items[j].PubDate)
+	sort.Slice(rss.Channel.Items, func(i, j int) bool {
+		ti, _ := time.Parse(time.RFC1123Z, rss.Channel.Items[i].PubDate)
+		tj, _ := time.Parse(time.RFC1123Z, rss.Channel.Items[j].PubDate)
 		return ti.After(tj)
 	})
 
-	// 指定件数まで取得
-	count := min(limit, len(items))
-	return &notifier.SlackMessage{}, nil
+	return toSlackMessage(rss), nil
+}
+
+func toSlackMessage(rss *RSSFeed) *notifier.SlackMessage {
+	latestArticle := rss.Channel.Items[0]
+	message := fmt.Sprintf(`
+			## LTS グループ Qiita アドベントカレンダー 2025
+
+			%s
+			%s
+
+			%s
+		
+		`, &latestArticle.Title,
+		&latestArticle.Description,
+		&latestArticle.Link,
+	)
+	return &notifier.SlackMessage{
+		Text: message,
+	}
 }

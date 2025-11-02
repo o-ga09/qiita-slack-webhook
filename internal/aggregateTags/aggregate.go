@@ -1,6 +1,7 @@
 package aggregatetags
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/o-ga09/qiita-slack-webhook/internal/config"
@@ -49,5 +50,26 @@ func AggregateLikes(cfg config.Config) (*notifier.SlackMessage, error) {
 	// トップ10を取得
 	topCount := min(10, len(allItems))
 
-	return &notifier.SlackMessage{}, nil
+	summary := LikeSummary{
+		TotalLikes:  totalLikes,
+		TotalItems:  len(allItems),
+		TopArticles: allItems[:topCount],
+	}
+
+	return toSlackMessage(&summary), nil
+}
+
+func toSlackMessage(summary *LikeSummary) *notifier.SlackMessage {
+	message := fmt.Sprintf(`
+		*Tag: %s*
+		*Total Likes: %d*
+		*Total Items: %d*
+		*Top 10 Articles:*
+	`, "LTSグループアドベントカレンダー",
+		summary.TotalLikes,
+		summary.TotalItems,
+	)
+	return &notifier.SlackMessage{
+		Text: message,
+	}
 }
