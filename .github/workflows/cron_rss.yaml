@@ -2,7 +2,7 @@ name: Execute Cron Job Qiita Advent Calendar 2025 For RSS
 
 on:
   schedule:
-    - cron: "23 40 * * *"
+    - cron: "40 23 * * *"
   workflow_dispatch:
 
 env:
