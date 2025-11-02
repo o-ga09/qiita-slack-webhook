@@ -3,12 +3,14 @@ package aggregatetags
 import (
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/o-ga09/qiita-slack-webhook/internal/config"
 	"github.com/o-ga09/qiita-slack-webhook/internal/notifier"
 )
 
 type LikeSummary struct {
+	Tag         string
 	TotalLikes  int
 	TotalItems  int
 	TopArticles []QiitaItem
@@ -60,12 +62,17 @@ func AggregateLikes(cfg config.Config) (*notifier.SlackMessage, error) {
 }
 
 func toSlackMessage(summary *LikeSummary) *notifier.SlackMessage {
+	today := time.Now().Format("2006-01-02")
 	message := fmt.Sprintf(`
+	===================================
 		*Tag: %s*
-		*Total Likes: %d*
-		*Total Items: %d*
-		*Top 10 Articles:*
-	`, "LTSグループアドベントカレンダー",
+		** %s 時点アドベントカレンダー集計**
+		*👍 総いいね数: %d*
+		*📝 総記事数: %d*
+		*🎉 いいね数Top10:*
+	===================================
+	`, summary.Tag,
+		today,
 		summary.TotalLikes,
 		summary.TotalItems,
 	)

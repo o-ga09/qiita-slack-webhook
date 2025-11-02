@@ -77,24 +77,22 @@ func GetLatestRSSArticles(cfg config.Config) (*notifier.SlackMessage, error) {
 }
 
 func toSlackMessage(rss *RSSFeed) *notifier.SlackMessage {
-	latestArticle := rss.Entries[0]
-	// URLはlink要素のhref属性またはurl要素から取得
-	articleURL := latestArticle.Link.Href
-	if articleURL == "" {
-		articleURL = latestArticle.URL
+	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	articles := ""
+	for i, item := range rss.Entries {
+		// URLはlink要素のhref属性またはurl要素から取得
+		articleURL := item.Link.Href
+		if articleURL == "" {
+			articleURL = item.URL
+		}
+		articles += fmt.Sprintf("• No.%d %s\n\n%s\n\n", i+1, item.Title, articleURL)
 	}
 
-	message := fmt.Sprintf(`
-## LTS グループ Qiita アドベントカレンダー 2025
+	message := fmt.Sprintf(`*🎄 LTS グループ Qiita アドベントカレンダー 2025 🎄*
 
-%s
-%s
+前日（ %s ）に投稿された記事をご紹介！
 
-%s
-`, latestArticle.Title,
-		latestArticle.Content,
-		articleURL,
-	)
+%s`, yesterday, articles)
 	return &notifier.SlackMessage{
 		Text: message,
 	}
