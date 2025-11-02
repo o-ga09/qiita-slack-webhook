@@ -6,9 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_RSS }}
   FEED_URL: ${{ secrets.FEED_URL}}
-  QIITA_ACCESS_TOKEN: ${{ secrets.QIITA_ACCESS_TOKEN }}
 
 jobs:
   run:
@@ -23,5 +22,5 @@ jobs:
         go-version: 1.25
     
     - name: Run Go Program
-      run: go run . --slack-webhook-url=$SLACK_WEBHOOK_URL --feed-url=$FEED_URL
+      run: go run main.go -mode=rss -rss=$FEED_URL -limit=10
   
